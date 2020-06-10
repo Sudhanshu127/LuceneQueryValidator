@@ -9,7 +9,11 @@ repositories {
     mavenCentral()
 }
 
+test{
+    useJUnitPlatform()
+}
+
 dependencies {
-    compile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '4.12'
     compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '8.4.1'
 }

@@ -91,11 +91,11 @@ public class ParseException extends Exception {
 //    String eol = System.getProperty("line.separator", " ");
       String eol = ",";
     StringBuilder expected = new StringBuilder();
-    int maxSize = 0;
+//    int maxSize = 0;
     for (int i = 0; i < expectedTokenSequences.length; i++) {
-      if (maxSize < expectedTokenSequences[i].length) {
-        maxSize = expectedTokenSequences[i].length;
-      }
+//      if (maxSize < expectedTokenSequences[i].length) {
+//        maxSize = expectedTokenSequences[i].length;
+//      }
       for (int j = 0; j < expectedTokenSequences[i].length; j++) {
         expected.append(tokenImage[expectedTokenSequences[i][j]]);
 //          expected.append(tokenImage[expectedTokenSequences[i][j]]).append(' ');
