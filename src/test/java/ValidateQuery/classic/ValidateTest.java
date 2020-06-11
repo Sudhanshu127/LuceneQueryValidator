@@ -42,7 +42,7 @@ public class ValidateTest {
                 JSONObject jsonObject1 = (JSONObject) array.get(0);
                 String query = (String) jsonObject1.get("textQuery");
                 if(query.contains("NEAR/")){
-                    query = query.replaceAll("NEAR/", "NEAR ");
+                    query = query.replaceAll("NEAR\\/\\d*", "AND");
 //                    System.out.println(query);
                 }
                 queries.put(query, ElasticSearchQuery.validQuery(query));
@@ -58,7 +58,7 @@ public class ValidateTest {
         System.out.println("Validating on " + queries.size() + " cases");
         int i=1;
         for (Map.Entry<String, Boolean> query : queries.entrySet()){
-//            System.out.println(query.getKey());
+            System.out.println(query.getKey());
             Validate result = Validate.validateQuery(query.getKey());
             if(!query.getValue()){
                 counter++;

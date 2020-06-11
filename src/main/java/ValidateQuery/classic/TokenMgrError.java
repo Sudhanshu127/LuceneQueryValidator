@@ -43,6 +43,8 @@ public class TokenMgrError extends Error
    */
   int errorCode;
 
+  public Token currentToken;
+
   /**
    * Replaces unprintable characters by their escaped (or unicode escaped)
    * equivalents in the given string
@@ -105,11 +107,12 @@ public class TokenMgrError extends Error
    * Note: You can customize the lexical error message by modifying this method.
    */
   protected static String LexicalError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar) {
-    return("Lexical error at line " +
-          errorLine + ", column " +
-          errorColumn + ".  Encountered: " +
-          (EOFSeen ? "<EOF> " : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int)curChar + "), ") +
-          "after : \"" + addEscapes(errorAfter) + "\"");
+//    return("Lexical error at line " +
+//          errorLine + ", column " +
+//          errorColumn + ".  Encountered: " +
+//          (EOFSeen ? "<EOF> " : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int)curChar + "), ") +
+//          "after : \"" + addEscapes(errorAfter) + "\"");
+    return("Lexical error");
   }
 
   /**
@@ -142,6 +145,13 @@ public class TokenMgrError extends Error
   /** Full Constructor. */
   public TokenMgrError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar, int reason) {
     this(LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
+
+    Token token = new Token();
+    token.image = String.valueOf(curChar);
+    token.beginColumn = token.endColumn = errorColumn;
+    token.beginLine = token.endLine = errorLine;
+
+    currentToken = token;
   }
 }
 /* JavaCC - OriginalChecksum=f433e1a52b8eadbf12f3fbbbf87fd140 (do not edit this line) */

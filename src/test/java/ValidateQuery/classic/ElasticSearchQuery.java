@@ -14,7 +14,6 @@ import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ElasticSearchQuery {
@@ -24,10 +23,8 @@ public class ElasticSearchQuery {
     private static final int PORT_TWO = 9201;
     private static final String SCHEME = "http";
     private static int users = 0;
-    static AtomicInteger counter = new AtomicInteger(0);
 
     private static RestHighLevelClient restHighLevelClient = null;
-//    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String INDEX = "tweetdata2";
 
@@ -67,6 +64,7 @@ public class ElasticSearchQuery {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        assert searchResponse != null;
         System.out.println(searchResponse.getHits());
     }
 

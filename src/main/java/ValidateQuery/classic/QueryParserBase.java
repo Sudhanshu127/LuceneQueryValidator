@@ -115,6 +115,7 @@ public abstract class QueryParserBase extends QueryBuilder implements CommonQuer
     }
     catch (TokenMgrError tme) {
       ParseException e = new ParseException(tme.getMessage());
+      e.currentToken = tme.currentToken;
       e.initCause(tme);
       throw e;
     }

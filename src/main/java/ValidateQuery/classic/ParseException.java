@@ -88,49 +88,31 @@ public class ParseException extends Exception {
   private static String initialise(Token currentToken,
                                    int[][] expectedTokenSequences,
                                    String[] tokenImage) {
-//    String eol = System.getProperty("line.separator", " ");
+
+      //Here is the code to print the expected tokens
+      /*
       String eol = ",";
     StringBuilder expected = new StringBuilder();
-//    int maxSize = 0;
     for (int i = 0; i < expectedTokenSequences.length; i++) {
-//      if (maxSize < expectedTokenSequences[i].length) {
-//        maxSize = expectedTokenSequences[i].length;
-//      }
       for (int j = 0; j < expectedTokenSequences[i].length; j++) {
         expected.append(tokenImage[expectedTokenSequences[i][j]]);
-//          expected.append(tokenImage[expectedTokenSequences[i][j]]).append(' ');
       }
-//      if (expectedTokenSequences[i][expectedTokenSequences[i].length - 1] != 0) {
-//        expected.append("...");
-//      }
-//      expected.append(eol).append("    ");
         expected.append(eol);
     }
+
+ */
     String retval = "Syntax Error";
-//    Token tok = currentToken.next;
-//    for (int i = 0; i < maxSize; i++) {
-//      if (i != 0) retval += " ";
-//      if (tok.kind == 0) {
-//        retval += tokenImage[0];
-//        break;
-//      }
-//      retval += " " + tokenImage[tok.kind];
-//      retval += " \"";
-//      retval += add_escapes(tok.image);
-//      retval += " \"";
-//      tok = tok.next;
+//    retval += " at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
+//    if(currentToken.image != null){
+//        retval += " (" + currentToken.image + ")";
 //    }
-    retval += " at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
-    if(currentToken.image != null){
-        retval += " (" + currentToken.image + ")";
-    }
-    retval += ".\n";
-    if (expectedTokenSequences.length == 1) {
-      retval += "Try using: ";
-    } else {
-      retval += "Try using one of: ";
-    }
-    retval += expected.toString();
+//    retval += ".\n";
+//    if (expectedTokenSequences.length == 1) {
+//      retval += "Try using: ";
+//    } else {
+//      retval += "Try using one of: ";
+//    }
+//    retval += expected.toString();
     return retval;
   }
 
