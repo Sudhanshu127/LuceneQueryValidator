@@ -109,15 +109,19 @@ public abstract class QueryParserBase extends QueryBuilder implements CommonQuer
       Query res = TopLevelQuery(field);
       return res!=null ? res : newBooleanQuery().build();
     }
-    catch (ParseException | TokenMgrError tme) {
+    catch (ParseException tme) {
       // rethrow to include the original query:
+      throw tme;
+    }
+    catch (TokenMgrError tme) {
       ParseException e = new ParseException(tme.getMessage());
       e.initCause(tme);
       throw e;
-//    } catch (TooManyClauses tmc) {
-//      ParseException e = new ParseException("Cannot parse '" +query+ "': too many boolean clauses");
-//      e.initCause(tmc);
-//      throw e;
+    }
+    catch (TooManyClauses tmc) {
+      ParseException e = new ParseException("Cannot parse '" +query+ "': too many boolean clauses");
+      e.initCause(tmc);
+      throw e;
     }
   }
 

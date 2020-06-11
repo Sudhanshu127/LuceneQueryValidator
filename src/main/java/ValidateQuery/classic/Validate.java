@@ -11,6 +11,7 @@ public class Validate {
             queryParser.parse(query);
         }
         catch (ParseException e){
+            System.out.println(e.currentToken.image);
             return new Validate(false, e.getMessage());
         }
         return new Validate(true);
