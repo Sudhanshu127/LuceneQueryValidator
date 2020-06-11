@@ -106,7 +106,7 @@ public class ParseException extends Exception {
 //      expected.append(eol).append("    ");
         expected.append(eol);
     }
-    String retval = "Error";
+    String retval = "Syntax Error";
 //    Token tok = currentToken.next;
 //    for (int i = 0; i < maxSize; i++) {
 //      if (i != 0) retval += " ";
@@ -121,11 +121,14 @@ public class ParseException extends Exception {
 //      tok = tok.next;
 //    }
     retval += " at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
+    if(currentToken.image != null){
+        retval += " (" + currentToken.image + ")";
+    }
     retval += ".\n";
     if (expectedTokenSequences.length == 1) {
-      retval += "Was expecting: ";
+      retval += "Try using: ";
     } else {
-      retval += "Was expecting one of: ";
+      retval += "Try using one of: ";
     }
     retval += expected.toString();
     return retval;
