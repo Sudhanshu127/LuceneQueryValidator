@@ -4,14 +4,11 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.validate.query.QueryExplanation;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryRequest;
 import org.elasticsearch.action.admin.indices.validate.query.ValidateQueryResponse;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 
@@ -52,22 +49,6 @@ public class ElasticSearchQuery {
         users = users - 1;
     }
 
-    static void makeQuery(String query){
-        QueryStringQueryBuilder qb = QueryBuilders.queryStringQuery(query);
-//        System.out.println(qb);
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.source(new SearchSourceBuilder().query(qb));
-        searchRequest.indices(INDEX);
-        SearchResponse searchResponse = null;
-        try {
-            searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert searchResponse != null;
-        System.out.println(searchResponse.getHits());
-    }
-
     static boolean validQuery(String query){
         QueryStringQueryBuilder qb = QueryBuilders.queryStringQuery(query);
         ValidateQueryRequest request = new ValidateQueryRequest(INDEX);
@@ -80,24 +61,10 @@ public class ElasticSearchQuery {
             e.printStackTrace();
         }
         assert response != null;
-//        System.out.println(response.toString());
-//        System.out.println(response.isValid());
-//        System.out.println(response.getFailedShards());
-//        if (!response.isValid()) {
-//            for(DefaultShardOperationFailedException failure: response.getShardFailures()) {
-////                String failedIndex = failure.index();
-////                int shardId = failure.shardId();
-//                String reason = failure.reason();
-//                System.out.println(reason);
-//            }
-//        }
-        if(!response.isValid())
-        for(QueryExplanation explanation: response.getQueryExplanation()) {
-//            String explanationIndex = explanation.getIndex();
-//            int shardId = explanation.getShard();
+
+//        for(QueryExplanation explanation: response.getQueryExplanation()) {
 //            System.out.println(explanation.getError());
-//            System.out.println(query + "\n");
-        }
+//        }
         return response.isValid();
     }
 }
