@@ -1,4 +1,4 @@
-##LuceneQueryValidator
+## LuceneQueryValidator
 Creating a syntatical and lexical validator for a query in elasticsearch 7.7 based on lucene 8.4.1  
 
 ### About
