@@ -1,8 +1,8 @@
 ## LuceneQueryValidator
-Creating a syntatical and lexical validator for a query in elasticsearch 7.7 based on lucene 8.4.1  
+Creating a syntactical and lexical validator for a query in elasticsearch 7.7 based on lucene 8.4.1  
 
 ### About
-The code has been used from org.apache.lucene:lucene-queryparser/classic  
+The code has been used from [https://github.com/apache/lucene-solr/tree/master/lucene/queryparser/src/java/org/apache/lucene/queryparser/classic](https://github.com/apache/lucene-solr/tree/master/lucene/queryparser/src/java/org/apache/lucene/queryparser/classic)  
 
 ### File Changes
 * <strong>ParseException</strong>
