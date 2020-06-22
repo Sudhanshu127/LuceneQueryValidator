@@ -4,4 +4,5 @@ build
 gradle
 out
 src/test/resources/queries.txt
+src/test/resources/test.txt
 output.txt

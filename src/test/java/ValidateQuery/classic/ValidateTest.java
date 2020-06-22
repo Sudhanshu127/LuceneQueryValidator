@@ -55,10 +55,10 @@ public class ValidateTest {
         for (Map.Entry<String, Boolean> query : queries.entrySet()){
             System.out.println("Query number " + i);
             System.out.println(query.getKey() + "\n");
-            Validate result = Validate.validateQuery(query.getKey());
+            ValidateResult result = Validate.validateQuery(query.getKey());
             if(!query.getValue()){
                 System.out.println("Query is invalid");
-                System.out.println(result.message);
+                System.out.println(result);
                 counter++;
             }
             else
@@ -67,7 +67,7 @@ public class ValidateTest {
             }
             System.out.println("\n\n");
 
-            assertEquals(query.getValue(), result.valid, "Query Result mismatch. Query :- " + query.getKey());
+            assertEquals(query.getValue(), result.isValid(), "Query Result mismatch. Query :- " + query.getKey());
             i++;
         }
 
