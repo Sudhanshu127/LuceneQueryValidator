@@ -52,11 +52,15 @@ public class ValidateTest {
 
         int counter = 0;
         int i = 1;
+
+        Mapping mapping = new Mapping();
+        mapping.checkFields = true;
+        Validate.setMapping(mapping);
         for (Map.Entry<String, Boolean> query : queries.entrySet()){
             System.out.println("Query number " + i);
             System.out.println(query.getKey() + "\n");
             ValidateResult result = Validate.validateQuery(query.getKey());
-            if(!query.getValue()){
+            if(!result.isValid()){
                 System.out.println("Query is invalid");
                 System.out.println(result);
                 counter++;
@@ -67,7 +71,11 @@ public class ValidateTest {
             }
             System.out.println("\n\n");
 
-            assertEquals(query.getValue(), result.isValid(), "Query Result mismatch. Query :- " + query.getKey());
+            if(!result.isValid()){
+                if(!result.getType().equals("Field Mismatch")){
+                    assertEquals(query.getValue(), result.isValid(), "Query Result mismatch. Query :- " + query.getKey());
+                }
+            }
             i++;
         }
 

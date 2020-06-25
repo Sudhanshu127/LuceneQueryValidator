@@ -2,12 +2,7 @@
 package ValidateQuery.classic;
 
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.DateTools;
@@ -87,11 +82,18 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   /** default split on whitespace behavior */
   public static final boolean DEFAULT_SPLIT_ON_WHITESPACE = false;
 
+  private Mapping mapping = new Mapping();
+
+
+  public void setMapping(Mapping mapping){
+    this.mapping = new Mapping(mapping);
+  }
+
   /** Create a query parser.
    *  @param f  the default field for query terms.
    *  @param a   used to find terms in the query text.
    */
-   public QueryParser(String f, Analyzer a) {
+  public QueryParser(String f, Analyzer a) {
     this(new FastCharStream(new StringReader("")));
     init(f, a);
   }
@@ -112,7 +114,7 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   public void setAutoGeneratePhraseQueries(boolean value) {
     if (splitOnWhitespace == false && value == true) {
       throw new IllegalArgumentException
-          ("setAutoGeneratePhraseQueries(true) is disallowed when getSplitOnWhitespace() == false");
+              ("setAutoGeneratePhraseQueries(true) is disallowed when getSplitOnWhitespace() == false");
     }
     this.autoGeneratePhraseQueries = value;
   }
@@ -134,84 +136,84 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   public void setSplitOnWhitespace(boolean splitOnWhitespace) {
     if (splitOnWhitespace == false && getAutoGeneratePhraseQueries() == true) {
       throw new IllegalArgumentException
-          ("setSplitOnWhitespace(false) is disallowed when getAutoGeneratePhraseQueries() == true");
+              ("setSplitOnWhitespace(false) is disallowed when getAutoGeneratePhraseQueries() == true");
     }
     this.splitOnWhitespace = splitOnWhitespace;
   }
 
   private boolean splitOnWhitespace = DEFAULT_SPLIT_ON_WHITESPACE;
   private static Set<Integer> disallowedPostMultiTerm
-    = new HashSet<Integer>(Arrays.asList(COLON, STAR, FUZZY_SLOP, CARAT, AND, OR));
+          = new HashSet<Integer>(Arrays.asList(COLON, STAR, FUZZY_SLOP, CARAT, AND, OR));
   private static boolean allowedPostMultiTerm(int tokenKind) {
     return disallowedPostMultiTerm.contains(tokenKind) == false;
   }
 
-// *   Query  ::= ( Clause )*
+  // *   Query  ::= ( Clause )*
 // *   Clause ::= ["+", "-"] [<TERM> ":"] ( <TERM> | "(" Query ")" )
   final public int Conjunction() throws ParseException {
-  int ret = CONJ_NONE;
+    int ret = CONJ_NONE;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case AND:
-    case OR:
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case AND:
-        jj_consume_token(AND);
-            ret = CONJ_AND;
-        break;
       case OR:
-        jj_consume_token(OR);
-              ret = CONJ_OR;
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case AND:
+            jj_consume_token(AND);
+            ret = CONJ_AND;
+            break;
+          case OR:
+            jj_consume_token(OR);
+            ret = CONJ_OR;
+            break;
+          default:
+            jj_la1[0] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
         break;
       default:
-        jj_la1[0] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      break;
-    default:
-      jj_la1[1] = jj_gen;
-      ;
+        jj_la1[1] = jj_gen;
+        ;
     }
     {if (true) return ret;}
     throw new Error("Missing return statement in function");
   }
 
   final public int Modifiers() throws ParseException {
-  int ret = MOD_NONE;
+    int ret = MOD_NONE;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case NOT:
-    case PLUS:
-    case MINUS:
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PLUS:
-        jj_consume_token(PLUS);
-             ret = MOD_REQ;
-        break;
-      case MINUS:
-        jj_consume_token(MINUS);
-                ret = MOD_NOT;
-        break;
       case NOT:
-        jj_consume_token(NOT);
-              ret = MOD_NOT;
+      case PLUS:
+      case MINUS:
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case PLUS:
+            jj_consume_token(PLUS);
+            ret = MOD_REQ;
+            break;
+          case MINUS:
+            jj_consume_token(MINUS);
+            ret = MOD_NOT;
+            break;
+          case NOT:
+            jj_consume_token(NOT);
+            ret = MOD_NOT;
+            break;
+          default:
+            jj_la1[2] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
         break;
       default:
-        jj_la1[2] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      break;
-    default:
-      jj_la1[3] = jj_gen;
-      ;
+        jj_la1[3] = jj_gen;
+        ;
     }
     {if (true) return ret;}
     throw new Error("Missing return statement in function");
   }
 
-// This makes sure that there is no garbage after the query string
+  // This makes sure that there is no garbage after the query string
   final public Query TopLevelQuery(String field) throws ParseException {
-  Query q;
+    Query q;
     q = Query(field);
     jj_consume_token(0);
     {if (true) return q;}
@@ -219,69 +221,43 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   }
 
   final public Query Query(String field) throws ParseException {
-  List<BooleanClause> clauses = new ArrayList<BooleanClause>();
-  Query q, firstQuery=null;
-  int conj, mods;
+    List<BooleanClause> clauses = new ArrayList<BooleanClause>();
+    Query q, firstQuery=null;
+    int conj, mods;
     if (jj_2_1(2)) {
       firstQuery = MultiTerm(field, clauses);
     } else {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case NOT:
-      case PLUS:
-      case MINUS:
-      case BAREOPER:
-      case LPAREN:
-      case STAR:
-      case QUOTED:
-      case TERM:
-      case PREFIXTERM:
-      case WILDTERM:
-      case REGEXPTERM:
-      case RANGEIN_START:
-      case RANGEEX_START:
-      case NUMBER:
-        mods = Modifiers();
-        q = Clause(field);
-        addClause(clauses, CONJ_NONE, mods, q);
-        if (mods == MOD_NONE) {
-          firstQuery = q;
-        }
-        break;
-      default:
-        jj_la1[4] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
+        case NOT:
+        case PLUS:
+        case MINUS:
+        case BAREOPER:
+        case LPAREN:
+        case STAR:
+        case QUOTED:
+        case TERM:
+        case PREFIXTERM:
+        case WILDTERM:
+        case REGEXPTERM:
+        case RANGEIN_START:
+        case RANGEEX_START:
+        case NUMBER:
+          mods = Modifiers();
+          q = Clause(field);
+          addClause(clauses, CONJ_NONE, mods, q);
+          if (mods == MOD_NONE) {
+            firstQuery = q;
+          }
+          break;
+        default:
+          jj_la1[4] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
       }
     }
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case AND:
-      case OR:
-      case NOT:
-      case PLUS:
-      case MINUS:
-      case BAREOPER:
-      case LPAREN:
-      case STAR:
-      case QUOTED:
-      case TERM:
-      case PREFIXTERM:
-      case WILDTERM:
-      case REGEXPTERM:
-      case RANGEIN_START:
-      case RANGEEX_START:
-      case NUMBER:
-        ;
-        break;
-      default:
-        jj_la1[5] = jj_gen;
-        break label_1;
-      }
-      if (jj_2_2(2)) {
-        MultiTerm(field, clauses);
-      } else {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case AND:
         case OR:
         case NOT:
@@ -298,15 +274,41 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
         case RANGEIN_START:
         case RANGEEX_START:
         case NUMBER:
-          conj = Conjunction();
-          mods = Modifiers();
-          q = Clause(field);
-        addClause(clauses, conj, mods, q);
+          ;
           break;
         default:
-          jj_la1[6] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
+          jj_la1[5] = jj_gen;
+          break label_1;
+      }
+      if (jj_2_2(2)) {
+        MultiTerm(field, clauses);
+      } else {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case AND:
+          case OR:
+          case NOT:
+          case PLUS:
+          case MINUS:
+          case BAREOPER:
+          case LPAREN:
+          case STAR:
+          case QUOTED:
+          case TERM:
+          case PREFIXTERM:
+          case WILDTERM:
+          case REGEXPTERM:
+          case RANGEIN_START:
+          case RANGEEX_START:
+          case NUMBER:
+            conj = Conjunction();
+            mods = Modifiers();
+            q = Clause(field);
+            addClause(clauses, conj, mods, q);
+            break;
+          default:
+            jj_la1[6] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
         }
       }
     }
@@ -319,294 +321,299 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   }
 
   final public Query Clause(String field) throws ParseException {
-  Query q;
-  Token fieldToken=null, boost=null;
+    Query q;
+    Token fieldToken=null, boost=null;
     if (jj_2_3(2)) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case TERM:
-        fieldToken = jj_consume_token(TERM);
-        jj_consume_token(COLON);
-                                 field=discardEscapeChar(fieldToken.image);
-        break;
-      case STAR:
-        jj_consume_token(STAR);
-        jj_consume_token(COLON);
-                        field="*";
-        break;
-      default:
-        jj_la1[7] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
+        case TERM:
+          fieldToken = jj_consume_token(TERM);
+          jj_consume_token(COLON);
+          field=discardEscapeChar(fieldToken.image);
+          if(mapping.checkFields){
+            if(!mapping.checkField(field)){
+              throw new ParseException("Field Mismatch", fieldToken);
+            }
+          }
+          break;
+        case STAR:
+          jj_consume_token(STAR);
+          jj_consume_token(COLON);
+          field="*";
+          break;
+        default:
+          jj_la1[7] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
       }
     } else {
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case BAREOPER:
-    case STAR:
-    case QUOTED:
-    case TERM:
-    case PREFIXTERM:
-    case WILDTERM:
-    case REGEXPTERM:
-    case RANGEIN_START:
-    case RANGEEX_START:
-    case NUMBER:
-      q = Term(field);
-      break;
-    case LPAREN:
-      jj_consume_token(LPAREN);
-      q = Query(field);
-      jj_consume_token(RPAREN);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CARAT:
-        jj_consume_token(CARAT);
-        boost = jj_consume_token(NUMBER);
+      case BAREOPER:
+      case STAR:
+      case QUOTED:
+      case TERM:
+      case PREFIXTERM:
+      case WILDTERM:
+      case REGEXPTERM:
+      case RANGEIN_START:
+      case RANGEEX_START:
+      case NUMBER:
+        q = Term(field);
+        break;
+      case LPAREN:
+        jj_consume_token(LPAREN);
+        q = Query(field);
+        jj_consume_token(RPAREN);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case CARAT:
+            jj_consume_token(CARAT);
+            boost = jj_consume_token(NUMBER);
+            break;
+          default:
+            jj_la1[8] = jj_gen;
+            ;
+        }
         break;
       default:
-        jj_la1[8] = jj_gen;
-        ;
-      }
-      break;
-    default:
-      jj_la1[9] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+        jj_la1[9] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
     }
     {if (true) return handleBoost(q, boost);}
     throw new Error("Missing return statement in function");
   }
 
   final public Query Term(String field) throws ParseException {
-  Token term, boost=null, fuzzySlop=null, goop1, goop2;
-  boolean prefix = false;
-  boolean wildcard = false;
-  boolean fuzzy = false;
-  boolean regexp = false;
-  boolean startInc=false;
-  boolean endInc=false;
-  Query q;
+    Token term, boost=null, fuzzySlop=null, goop1, goop2;
+    boolean prefix = false;
+    boolean wildcard = false;
+    boolean fuzzy = false;
+    boolean regexp = false;
+    boolean startInc=false;
+    boolean endInc=false;
+    Query q;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case BAREOPER:
-    case STAR:
-    case TERM:
-    case PREFIXTERM:
-    case WILDTERM:
-    case REGEXPTERM:
-    case NUMBER:
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case TERM:
-        term = jj_consume_token(TERM);
-        break;
-      case STAR:
-        term = jj_consume_token(STAR);
-                      wildcard=true;
-        break;
-      case PREFIXTERM:
-        term = jj_consume_token(PREFIXTERM);
-                            prefix=true;
-        break;
-      case WILDTERM:
-        term = jj_consume_token(WILDTERM);
-                          wildcard=true;
-        break;
-      case REGEXPTERM:
-        term = jj_consume_token(REGEXPTERM);
-                            regexp=true;
-        break;
-      case NUMBER:
-        term = jj_consume_token(NUMBER);
-        break;
       case BAREOPER:
-        term = jj_consume_token(BAREOPER);
-                          term.image = term.image.substring(0,1);
-        break;
-      default:
-        jj_la1[10] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CARAT:
-      case FUZZY_SLOP:
+      case STAR:
+      case TERM:
+      case PREFIXTERM:
+      case WILDTERM:
+      case REGEXPTERM:
+      case NUMBER:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case CARAT:
-          jj_consume_token(CARAT);
-          boost = jj_consume_token(NUMBER);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case FUZZY_SLOP:
-            fuzzySlop = jj_consume_token(FUZZY_SLOP);
-                                                        fuzzy=true;
+          case TERM:
+            term = jj_consume_token(TERM);
+            break;
+          case STAR:
+            term = jj_consume_token(STAR);
+            wildcard=true;
+            break;
+          case PREFIXTERM:
+            term = jj_consume_token(PREFIXTERM);
+            prefix=true;
+            break;
+          case WILDTERM:
+            term = jj_consume_token(WILDTERM);
+            wildcard=true;
+            break;
+          case REGEXPTERM:
+            term = jj_consume_token(REGEXPTERM);
+            regexp=true;
+            break;
+          case NUMBER:
+            term = jj_consume_token(NUMBER);
+            break;
+          case BAREOPER:
+            term = jj_consume_token(BAREOPER);
+            term.image = term.image.substring(0,1);
             break;
           default:
-            jj_la1[11] = jj_gen;
-            ;
-          }
-          break;
-        case FUZZY_SLOP:
-          fuzzySlop = jj_consume_token(FUZZY_SLOP);
-                                 fuzzy=true;
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case CARAT:
-            jj_consume_token(CARAT);
-            boost = jj_consume_token(NUMBER);
-            break;
-          default:
-            jj_la1[12] = jj_gen;
-            ;
-          }
-          break;
-        default:
-          jj_la1[13] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
+            jj_la1[10] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
         }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case CARAT:
+          case FUZZY_SLOP:
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+              case CARAT:
+                jj_consume_token(CARAT);
+                boost = jj_consume_token(NUMBER);
+                switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+                  case FUZZY_SLOP:
+                    fuzzySlop = jj_consume_token(FUZZY_SLOP);
+                    fuzzy=true;
+                    break;
+                  default:
+                    jj_la1[11] = jj_gen;
+                    ;
+                }
+                break;
+              case FUZZY_SLOP:
+                fuzzySlop = jj_consume_token(FUZZY_SLOP);
+                fuzzy=true;
+                switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+                  case CARAT:
+                    jj_consume_token(CARAT);
+                    boost = jj_consume_token(NUMBER);
+                    break;
+                  default:
+                    jj_la1[12] = jj_gen;
+                    ;
+                }
+                break;
+              default:
+                jj_la1[13] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+            }
+            break;
+          default:
+            jj_la1[14] = jj_gen;
+            ;
+        }
+        q = handleBareTokenQuery(field, term, fuzzySlop, prefix, wildcard, fuzzy, regexp);
         break;
-      default:
-        jj_la1[14] = jj_gen;
-        ;
-      }
-      q = handleBareTokenQuery(field, term, fuzzySlop, prefix, wildcard, fuzzy, regexp);
-      break;
-    case RANGEIN_START:
-    case RANGEEX_START:
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case RANGEIN_START:
-        jj_consume_token(RANGEIN_START);
-                        startInc = true;
-        break;
       case RANGEEX_START:
-        jj_consume_token(RANGEEX_START);
-        break;
-      default:
-        jj_la1[15] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case RANGE_GOOP:
-        goop1 = jj_consume_token(RANGE_GOOP);
-        break;
-      case RANGE_QUOTED:
-        goop1 = jj_consume_token(RANGE_QUOTED);
-        break;
-      case RANGE_TO:
-        goop1 = jj_consume_token(RANGE_TO);
-        break;
-      default:
-        jj_la1[16] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      jj_consume_token(RANGE_TO);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case RANGE_GOOP:
-        goop2 = jj_consume_token(RANGE_GOOP);
-        break;
-      case RANGE_QUOTED:
-        goop2 = jj_consume_token(RANGE_QUOTED);
-        break;
-      case RANGE_TO:
-        goop2 = jj_consume_token(RANGE_TO);
-        break;
-      default:
-        jj_la1[17] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case RANGEIN_END:
-        jj_consume_token(RANGEIN_END);
-                      endInc = true;
-        break;
-      case RANGEEX_END:
-        jj_consume_token(RANGEEX_END);
-        break;
-      default:
-        jj_la1[18] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CARAT:
-        jj_consume_token(CARAT);
-        boost = jj_consume_token(NUMBER);
-        break;
-      default:
-        jj_la1[19] = jj_gen;
-        ;
-      }
-      boolean startOpen=false;
-      boolean endOpen=false;
-      if (goop1.kind == RANGE_QUOTED) {
-        goop1.image = goop1.image.substring(1, goop1.image.length()-1);
-      } else if ("*".equals(goop1.image)) {
-        startOpen=true;
-      }
-      if (goop2.kind == RANGE_QUOTED) {
-        goop2.image = goop2.image.substring(1, goop2.image.length()-1);
-      } else if ("*".equals(goop2.image)) {
-        endOpen=true;
-      }
-      q = getRangeQuery(field, startOpen ? null : discardEscapeChar(goop1.image), endOpen ? null : discardEscapeChar(goop2.image), startInc, endInc);
-      break;
-    case QUOTED:
-      term = jj_consume_token(QUOTED);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CARAT:
-      case FUZZY_SLOP:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case CARAT:
-          jj_consume_token(CARAT);
-          boost = jj_consume_token(NUMBER);
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case FUZZY_SLOP:
-            fuzzySlop = jj_consume_token(FUZZY_SLOP);
-                                                        fuzzy=true;
+          case RANGEIN_START:
+            jj_consume_token(RANGEIN_START);
+            startInc = true;
+            break;
+          case RANGEEX_START:
+            jj_consume_token(RANGEEX_START);
             break;
           default:
-            jj_la1[20] = jj_gen;
-            ;
-          }
-          break;
-        case FUZZY_SLOP:
-          fuzzySlop = jj_consume_token(FUZZY_SLOP);
-                                 fuzzy=true;
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+            jj_la1[15] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case RANGE_GOOP:
+            goop1 = jj_consume_token(RANGE_GOOP);
+            break;
+          case RANGE_QUOTED:
+            goop1 = jj_consume_token(RANGE_QUOTED);
+            break;
+          case RANGE_TO:
+            goop1 = jj_consume_token(RANGE_TO);
+            break;
+          default:
+            jj_la1[16] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
+        jj_consume_token(RANGE_TO);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case RANGE_GOOP:
+            goop2 = jj_consume_token(RANGE_GOOP);
+            break;
+          case RANGE_QUOTED:
+            goop2 = jj_consume_token(RANGE_QUOTED);
+            break;
+          case RANGE_TO:
+            goop2 = jj_consume_token(RANGE_TO);
+            break;
+          default:
+            jj_la1[17] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case RANGEIN_END:
+            jj_consume_token(RANGEIN_END);
+            endInc = true;
+            break;
+          case RANGEEX_END:
+            jj_consume_token(RANGEEX_END);
+            break;
+          default:
+            jj_la1[18] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
+        }
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case CARAT:
             jj_consume_token(CARAT);
             boost = jj_consume_token(NUMBER);
             break;
           default:
-            jj_la1[21] = jj_gen;
+            jj_la1[19] = jj_gen;
             ;
-          }
-          break;
-        default:
-          jj_la1[22] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
         }
+        boolean startOpen=false;
+        boolean endOpen=false;
+        if (goop1.kind == RANGE_QUOTED) {
+          goop1.image = goop1.image.substring(1, goop1.image.length()-1);
+        } else if ("*".equals(goop1.image)) {
+          startOpen=true;
+        }
+        if (goop2.kind == RANGE_QUOTED) {
+          goop2.image = goop2.image.substring(1, goop2.image.length()-1);
+        } else if ("*".equals(goop2.image)) {
+          endOpen=true;
+        }
+        q = getRangeQuery(field, startOpen ? null : discardEscapeChar(goop1.image), endOpen ? null : discardEscapeChar(goop2.image), startInc, endInc);
+        break;
+      case QUOTED:
+        term = jj_consume_token(QUOTED);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case CARAT:
+          case FUZZY_SLOP:
+            switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+              case CARAT:
+                jj_consume_token(CARAT);
+                boost = jj_consume_token(NUMBER);
+                switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+                  case FUZZY_SLOP:
+                    fuzzySlop = jj_consume_token(FUZZY_SLOP);
+                    fuzzy=true;
+                    break;
+                  default:
+                    jj_la1[20] = jj_gen;
+                    ;
+                }
+                break;
+              case FUZZY_SLOP:
+                fuzzySlop = jj_consume_token(FUZZY_SLOP);
+                fuzzy=true;
+                switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+                  case CARAT:
+                    jj_consume_token(CARAT);
+                    boost = jj_consume_token(NUMBER);
+                    break;
+                  default:
+                    jj_la1[21] = jj_gen;
+                    ;
+                }
+                break;
+              default:
+                jj_la1[22] = jj_gen;
+                jj_consume_token(-1);
+                throw new ParseException();
+            }
+            break;
+          default:
+            jj_la1[23] = jj_gen;
+            ;
+        }
+        q = handleQuotedTerm(field, term, fuzzySlop);
         break;
       default:
-        jj_la1[23] = jj_gen;
-        ;
-      }
-      q = handleQuotedTerm(field, term, fuzzySlop);
-      break;
-    default:
-      jj_la1[24] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+        jj_la1[24] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
     }
     {if (true) return handleBoost(q, boost);}
     throw new Error("Missing return statement in function");
   }
 
-/** Returns the first query if splitOnWhitespace=true or otherwise the entire produced query */
+  /** Returns the first query if splitOnWhitespace=true or otherwise the entire produced query */
   final public Query MultiTerm(String field, List<BooleanClause> clauses) throws ParseException {
-  Token text, whitespace, followingText;
-  Query firstQuery = null;
+    Token text, whitespace, followingText;
+    Query firstQuery = null;
     text = jj_consume_token(TERM);
     if (splitOnWhitespace) {
       firstQuery = getFieldQuery(field, discardEscapeChar(text.image), false);
@@ -712,8 +719,8 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_4()) {
-    jj_scanpos = xsp;
-    if (jj_3R_5()) return true;
+      jj_scanpos = xsp;
+      if (jj_3R_5()) return true;
     }
     return false;
   }
@@ -735,15 +742,15 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
-      jj_la1_init_0();
-      jj_la1_init_1();
-   }
-   private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x300,0x300,0x1c00,0x1c00,0xfda7c00,0xfda7f00,0xfda7f00,0x120000,0x40000,0xfda6000,0x9d22000,0x200000,0x40000,0x240000,0x240000,0x6000000,0x90000000,0x90000000,0x60000000,0x40000,0x200000,0x40000,0x240000,0x240000,0xfda2000,};
-   }
-   private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
-   }
+    jj_la1_init_0();
+    jj_la1_init_1();
+  }
+  private static void jj_la1_init_0() {
+    jj_la1_0 = new int[] {0x300,0x300,0x1c00,0x1c00,0xfda7c00,0xfda7f00,0xfda7f00,0x120000,0x40000,0xfda6000,0x9d22000,0x200000,0x40000,0x240000,0x240000,0x6000000,0x90000000,0x90000000,0x60000000,0x40000,0x200000,0x40000,0x240000,0x240000,0xfda2000,};
+  }
+  private static void jj_la1_init_1() {
+    jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+  }
   final private JJCalls[] jj_2_rtns = new JJCalls[3];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
@@ -837,7 +844,7 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   }
 
 
-/** Get the next Token. */
+  /** Get the next Token. */
   final public Token getNextToken() {
     if (token.next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -846,7 +853,7 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
     return token;
   }
 
-/** Get the specific Token. */
+  /** Get the specific Token. */
   final public Token getToken(int index) {
     Token t = jj_lookingAhead ? jj_scanpos : token;
     for (int i = 0; i < index; i++) {
@@ -942,19 +949,19 @@ public class QueryParser extends QueryParserBase implements QueryParserConstants
   private void jj_rescan_token() {
     jj_rescan = true;
     for (int i = 0; i < 3; i++) {
-    try {
-      JJCalls p = jj_2_rtns[i];
-      do {
-        if (p.gen > jj_gen) {
-          jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
-          switch (i) {
-            case 0: jj_3_1(); break;
-            case 1: jj_3_2(); break;
-            case 2: jj_3_3(); break;
+      try {
+        JJCalls p = jj_2_rtns[i];
+        do {
+          if (p.gen > jj_gen) {
+            jj_la = p.arg; jj_lastpos = jj_scanpos = p.first;
+            switch (i) {
+              case 0: jj_3_1(); break;
+              case 1: jj_3_2(); break;
+              case 2: jj_3_3(); break;
+            }
           }
-        }
-        p = p.next;
-      } while (p != null);
+          p = p.next;
+        } while (p != null);
       } catch(LookaheadSuccess ls) { }
     }
     jj_rescan = false;

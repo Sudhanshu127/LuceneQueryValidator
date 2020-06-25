@@ -15,6 +15,9 @@ public class ValidateResult {
     public boolean isValid() {
         return valid;
     }
+    public String getType(){
+        return type;
+    }
 
     @Override
     public String toString(){
