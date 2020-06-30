@@ -266,6 +266,20 @@ private int jjMoveNfa_2(int startState, int curPos)
                case 47:
                   jjCheckNAddStates(18, 20);
                   break;
+               case 50:
+                  if (curChar == 47)
+                     jjstateSet[jjnewStateCnt++] = 51;
+                  break;
+               case 51:
+                  if (curChar > 47 && curChar < 58)
+                     jjstateSet[jjnewStateCnt++] = 52;
+                  break;
+               case 52:
+                  if (curChar > 47 && curChar < 58)
+                     jjstateSet[jjnewStateCnt++] = 52;
+                  else if(curChar == 32 && kind > 8)
+                     kind = 8;
+                  break;
                default : break;
             }
          } while(i != startsAt);
@@ -352,6 +366,8 @@ private int jjMoveNfa_2(int startState, int curPos)
                case 11:
                   if (curChar == 79)
                      jjstateSet[jjnewStateCnt++] = 10;
+                  else if(curChar == 69)
+                     jjstateSet[jjnewStateCnt++] = 50;
                   break;
                case 12:
                   if (curChar == 78)
@@ -474,6 +490,14 @@ private int jjMoveNfa_2(int startState, int curPos)
                case 48:
                   if (curChar == 92)
                      jjCheckNAddStates(21, 23);
+                  break;
+               case 50:
+                  if (curChar == 65)
+                     jjstateSet[jjnewStateCnt++] = 51;
+                  break;
+               case 51:
+                  if (curChar == 82)
+                     jjstateSet[jjnewStateCnt++] = 50;
                   break;
                default : break;
             }

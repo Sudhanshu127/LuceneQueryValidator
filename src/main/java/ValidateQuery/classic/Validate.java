@@ -51,6 +51,13 @@ public class Validate {
 
             return builder.build();
         }
+        catch (Exception e){
+            ValidateResult.Builder builder = new ValidateResult.Builder(false);
+            builder.type(e.getMessage())
+                    .query(query);
+            return builder.build();
+        }
+
         return new ValidateResult.Builder(true).build();
     }
 }
